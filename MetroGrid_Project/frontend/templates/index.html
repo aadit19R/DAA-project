@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MetroGrid Command Center — Autonomous Supply Chain & Logistics Network Dashboard">
+    <title>MetroGrid | Command Center</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="dashboard">
+
+        <!-- Header -->
+        <header class="header">
+            <h1>MetroGrid <span class="accent">Command Center</span></h1>
+            <p class="header-sub">Autonomous Supply Chain &amp; Logistics Network</p>
+        </header>
+
+        <!-- Main Grid -->
+        <main class="grid-container">
+
+            <!-- Panel 1 — Freight Navigator (Dijkstra) -->
+            <section class="card" id="panel-navigate">
+                <h2>Freight Navigator</h2>
+                <p class="algo-tag">Algorithm: Dijkstra O(V²)</p>
+
+                <div class="control-group">
+                    <label for="source-hub">Source Hub</label>
+                    <select id="source-hub">
+                        <option value="Mumbai Central">Mumbai Central</option>
+                        <option value="Pune Outpost">Pune Outpost</option>
+                        <option value="Bangalore Apex">Bangalore Apex</option>
+                        <option value="Hyderabad Core">Hyderabad Core</option>
+                        <option value="Delhi Hub">Delhi Hub</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="dest-hub">Destination Hub</label>
+                    <select id="dest-hub">
+                        <option value="Mumbai Central">Mumbai Central</option>
+                        <option value="Pune Outpost">Pune Outpost</option>
+                        <option value="Bangalore Apex">Bangalore Apex</option>
+                        <option value="Hyderabad Core">Hyderabad Core</option>
+                        <option value="Delhi Hub" selected>Delhi Hub</option>
+                    </select>
+                </div>
+
+                <button id="btn-navigate" class="action-btn btn-cyan">Calculate Route</button>
+                <div class="terminal-output" id="nav-output">Awaiting routing parameters...</div>
+            </section>
+
+            <!-- Panel 2 — Infrastructure Optimizer (Prim's) -->
+            <section class="card" id="panel-infrastructure">
+                <h2>Infrastructure Optimizer</h2>
+                <p class="algo-tag">Algorithm: Prim's MST O(V²)</p>
+
+                <button id="btn-infrastructure" class="action-btn btn-cyan">Analyze Rail Network</button>
+                <div class="terminal-output" id="infra-output">Awaiting network scan...</div>
+            </section>
+
+            <!-- Panel 3 — Fleet Performance Optimizer (Merge Sort) -->
+            <section class="card" id="panel-optimizer">
+                <h2>Fleet Performance Optimizer</h2>
+                <p class="algo-tag">Algorithm: Merge Sort O(N log N)</p>
+
+                <div class="control-group input-inline">
+                    <div class="control-group" style="margin:0">
+                        <label for="sort-key">Sort By</label>
+                        <select id="sort-key">
+                            <option value="battery">Battery % (High → Low)</option>
+                            <option value="kilometers">Distance km (Low → High)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-inline" style="margin-top: 0.75rem;">
+                    <button id="btn-sort-fleet" class="action-btn btn-cyan">OPTIMIZE FLEET (MERGE SORT)</button>
+                    <button id="btn-randomize-fleet" class="action-btn btn-secondary small-btn">RANDOMIZE</button>
+                </div>
+                <div class="terminal-output" id="optimizer-output" style="height: 240px; overflow-y: auto;">Fleet optimizer on standby...</div>
+            </section>
+
+            <!-- Panel 4 — Active Fleet & Sensors (Linked List + Circular Queue) -->
+            <section class="card span-full" id="panel-registry">
+                <div class="dual-panel">
+
+                    <div class="panel-section">
+                        <h2>Active Fleet Registry</h2>
+                        <p class="algo-tag">Structure: Singly Linked List</p>
+
+                        <!-- 3-Field Registration Form -->
+                        <div class="control-group" style="display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:0.5rem; align-items:end;">
+                            <div>
+                                <label for="new-drone-id">Drone ID</label>
+                                <input type="text" id="new-drone-id" placeholder="e.g. Drone-Golf">
+                            </div>
+                            <div>
+                                <label for="new-drone-battery">Battery %</label>
+                                <input type="number" id="new-drone-battery" placeholder="0-100" min="0" max="100">
+                            </div>
+                            <div>
+                                <label for="new-drone-kms">Km Traveled</label>
+                                <input type="number" id="new-drone-kms" placeholder="km" min="0">
+                            </div>
+                            <button id="btn-add-drone" class="action-btn btn-cyan small-btn" style="margin-top:1.2rem;">REGISTER</button>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="input-inline" style="margin-top:0.5rem; flex-wrap:wrap; gap:0.5rem;">
+                            <button id="btn-refresh-fleet" class="action-btn btn-secondary small-btn">REFRESH</button>
+                        </div>
+
+                        <!-- Fleet list -->
+                        <ul class="data-list" id="fleet-list" style="margin-top:0.75rem;">
+                            <li>Loading fleet registry...</li>
+                        </ul>
+
+                        <!-- Pointer feedback terminal -->
+                        <div class="terminal-output" id="fleet-output" style="height:110px; overflow-y:auto; margin-top:0.75rem;">Registry ready. Awaiting operations...</div>
+                    </div>
+
+                    <div class="panel-section" style="display:flex; flex-direction:column;">
+                        <h2>System Monitor</h2>
+                        <p class="algo-tag">Structure: Circular Queue (cap=5)</p>
+                        <!-- Terminal strictly sized for 5 lines to eliminate excess black space overhead -->
+                        <div class="terminal-output" id="log-output" style="height: 100px; overflow-y: hidden; display: flex; flex-direction: column; justify-content: flex-end; margin-top: auto;">
+                            <div>Loading system monitor...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!--
+        JS Load Order (CRITICAL):
+        1. api.js   — defines fetch functions (no DOM)
+        2. ui.js    — defines display functions (no fetch)
+        3. main.js  — wires api → ui via event listeners (depends on both)
+    -->
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>
