@@ -1,12 +1,6 @@
 """
-algorithms.py — MetroGrid Core Algorithm Implementations
-
-Imports data structures from data_structures.py and static data from config.py.
-All three algorithms are manually implemented with no external libraries.
-
-Constraints:
-  - No heapq, no sorted(), no built-in algorithm modules.
-  - Dijkstra and Prim's use O(V^2) manual linear scans over arrays.
+algorithms.py — Dijkstra and Prim's implementations for MetroGrid.
+No heapq, no sorted(), no built-in algorithm modules — O(V^2) manual scans throughout.
 """
 
 from data_structures import Stack, Queue
@@ -19,16 +13,9 @@ from config import hub_names, adj_matrix, get_hub_index, BLOCKED
 
 def _find_min_dist_node(dist, visited):
     """
-    Internal helper: manual O(V) linear scan over dist[] to find the
-    unvisited node with the smallest tentative distance.
-    Justification: Replaces a Min-Heap to satisfy the no-tree constraint.
-
-    Args:
-        dist    (list[float]): Current shortest distance to each hub.
-        visited (list[bool]):  True for hubs already finalised.
-
-    Returns:
-        int: Index of the minimum-distance unvisited node, or -1 if none.
+    O(V) linear scan to find the unvisited hub with the smallest tentative
+    distance. Replaces a Min-Heap to satisfy the no-built-in-DS constraint.
+    Returns the index, or -1 if all remaining nodes are unreachable.
     """
     min_dist  = float('inf')
     min_index = -1
@@ -41,19 +28,11 @@ def _find_min_dist_node(dist, visited):
 
 def calculate_freight_route(source, destination):
     """
-    Dijkstra's Algorithm — Find the minimum-cost freight route between hubs.
-    Time Complexity: O(V^2) — V outer iterations × O(V) linear min-scan.
-    Uses the Stack class to reverse the predecessor array into a forward path.
+    Dijkstra's shortest path — O(V^2) via manual linear scan (no heap).
+    Uses a Stack to reverse the pred[] chain into a forward-order route.
 
-    Args:
-        source      (str): Name of the starting city hub.
-        destination (str): Name of the destination city hub.
-
-    Returns:
-        tuple:
-          - route_log  (list[str]): Ordered hub names from source to destination.
-          - total_cost (int):       Total transit distance in km.
-          On error: (error_message: str, -1)
+    Returns: (route_log: list[str], total_cost: int)
+             or (error_message: str, -1) on failure.
     """
     start_idx = get_hub_index(source)
     end_idx   = get_hub_index(destination)
@@ -68,18 +47,16 @@ def calculate_freight_route(source, destination):
 
     dist[start_idx] = 0
 
-    # --- O(V^2) Dijkstra Main Loop ---
     for _ in range(num_nodes):
-        u = _find_min_dist_node(dist, visited)  # O(V) linear scan, no heap
+        u = _find_min_dist_node(dist, visited)
         if u == -1:
-            break  # All remaining nodes are unreachable
+            break
 
         visited[u] = True
 
         for v in range(num_nodes):
             edge_weight = adj_matrix[u][v]
-            # Skip: self-loop (0), or blocked route (BLOCKED).
-            # Only relax if this path to v is shorter than the current best.
+            # Skip self-loops and blocked routes; relax if a shorter path is found.
             if not visited[v] and edge_weight != 0 and edge_weight != BLOCKED:
                 if dist[u] + edge_weight < dist[v]:
                     dist[v] = dist[u] + edge_weight
@@ -88,8 +65,7 @@ def calculate_freight_route(source, destination):
     if dist[end_idx] == float('inf'):
         return "No path exists between selected hubs.", -1
 
-    # --- Stack-based path reconstruction ---
-    # Push nodes from destination back to source using pred[], then pop to reverse.
+    # Walk pred[] backwards from destination → source, push to Stack, then pop to reverse.
     route_stack = Stack()
     node = end_idx
     while node != -1:
@@ -109,37 +85,31 @@ def calculate_freight_route(source, destination):
 
 def optimize_infrastructure():
     """
-    Prim's Algorithm — Find the Minimum Spanning Tree for the rail network.
-    Connects all city hubs with the lowest total infrastructure cost.
-    Time Complexity: O(V^2) — outer while-loop runs V-1 times, inner nested
-    for-loops perform an O(V^2) scan to find the minimum cut edge.
-    Justification: Manual nested loops replace a priority queue.
+    Prim's MST — O(V^2) nested scan, no priority queue.
+    Grows the tree one minimum cut-edge at a time from Mumbai Central (index 0).
+    Edges are appended in chronological selection order (relied on by the frontend animation).
 
-    Returns:
-        tuple:
-          - mst_edges  (list[tuple]): [(from_hub, to_hub, cost), ...] for each rail link.
-          - total_cost (int):         Sum of all MST edge weights.
+    Returns: (mst_edges: list[tuple(from, to, cost)], total_cost: int)
     """
     num_nodes  = len(hub_names)
-    visited    = [False] * num_nodes  # visited[i] = True when hub i is in the MST
+    visited    = [False] * num_nodes
     mst_edges  = []
     total_cost = 0
 
-    visited[0]   = True   # Grow MST from Mumbai Central (index 0)
-    edges_added  = 0
+    visited[0]  = True  # seed from Mumbai Central
+    edges_added = 0
 
-    # We need exactly V-1 edges to span all V nodes
     while edges_added < num_nodes - 1:
         min_weight = float('inf')
         u_node = -1
         v_node = -1
 
-        # --- O(V^2) cut scan: minimum edge from visited -> unvisited set ---
+        # O(V^2) scan: find the cheapest edge crossing visited → unvisited.
         for i in range(num_nodes):
             if visited[i]:
                 for j in range(num_nodes):
                     edge_weight = adj_matrix[i][j]
-                    # Skip: self-loop (0), or blocked route (BLOCKED).
+                    # Skip self-loops and blocked routes.
                     if not visited[j] and edge_weight != 0 and edge_weight != BLOCKED:
                         if edge_weight < min_weight:
                             min_weight = edge_weight
@@ -148,12 +118,9 @@ def optimize_infrastructure():
 
         if u_node != -1 and v_node != -1:
             visited[v_node] = True
-            # Edges are appended in the exact order Prim's selects them,
-            # so mst_edges[0] is step 1, mst_edges[1] is step 2, etc.
-            # The frontend relies on this chronological ordering for animation.
+            # Appended in selection order — frontend animation depends on this.
             mst_edges.append((hub_names[u_node], hub_names[v_node], min_weight))
             total_cost  += min_weight
             edges_added += 1
 
     return mst_edges, total_cost
-
