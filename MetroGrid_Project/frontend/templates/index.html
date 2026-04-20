@@ -21,6 +21,24 @@
         <!-- Main Grid -->
         <main class="grid-container">
 
+            <!-- Panel 0 — Dynamic Network Map (Canvas Visualization) -->
+            <section class="card span-full" id="panel-map">
+                <h2>Live Network Topology</h2>
+                <p class="algo-tag">Visual: Dijkstra Route & Prim's MST Renderer</p>
+
+                <div class="map-container">
+                    <canvas id="network-map"></canvas>
+                    <div class="map-status" id="map-status">STANDBY — Run Dijkstra or Prim's to visualize</div>
+                </div>
+
+                <div class="map-legend">
+                    <div class="legend-item"><span class="legend-line base"></span> All Possible Routes</div>
+                    <div class="legend-item"><span class="legend-line cyan"></span> Dijkstra Optimal Path</div>
+                    <div class="legend-item"><span class="legend-line orange"></span> Prim's MST Backbone</div>
+                    <div class="legend-item"><span class="legend-dot cyan"></span> Active Drone</div>
+                </div>
+            </section>
+
             <!-- Panel 1 — Freight Navigator (Dijkstra) -->
             <section class="card" id="panel-navigate">
                 <h2>Freight Navigator</h2>
@@ -144,6 +162,7 @@
         3. main.js  — wires api → ui via event listeners (depends on both)
     -->
     <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 

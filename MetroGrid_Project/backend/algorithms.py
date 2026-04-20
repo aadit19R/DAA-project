@@ -148,6 +148,9 @@ def optimize_infrastructure():
 
         if u_node != -1 and v_node != -1:
             visited[v_node] = True
+            # Edges are appended in the exact order Prim's selects them,
+            # so mst_edges[0] is step 1, mst_edges[1] is step 2, etc.
+            # The frontend relies on this chronological ordering for animation.
             mst_edges.append((hub_names[u_node], hub_names[v_node], min_weight))
             total_cost  += min_weight
             edges_added += 1

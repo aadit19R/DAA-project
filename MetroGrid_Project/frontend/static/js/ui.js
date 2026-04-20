@@ -95,6 +95,11 @@ function displayRouteResult(source, destination, route, cost) {
         `  ${routeStr}`
     );
     typeWriterEffect('nav-output', text, 12);
+
+    // --- Visual map sync: highlight Dijkstra path + launch drone animation ---
+    if (typeof updateMap === 'function') {
+        updateMap('dijkstra', { route, cost });
+    }
 }
 
 /**
@@ -170,6 +175,11 @@ function displayInfrastructureResult(edges, totalCost) {
     treeLines.forEach(l => lines.push(`> ${l}`));
 
     typeWriterEffect('infra-output', lines.join('\n'), 8);
+
+    // --- Visual map sync: highlight MST backbone in bright orange ---
+    if (typeof updateMap === 'function') {
+        updateMap('prim', { edges, total_cost: totalCost });
+    }
 }
 
 /**
